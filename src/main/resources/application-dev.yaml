@@ -1,0 +1,19 @@
+server:
+  port: 9000
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=livestock_shop_dev
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      username: postgres
+      password: postgres
+      connection-timeout: 10000
+      minimum-idle: 5
+      maximum-pool-size: 10
+      idle-timeout: 60000
+      max-lifetime: 180000
+      auto-commit: true
+logging:
+  config: classpath:logback-dev.xml

@@ -1,0 +1,1 @@
+package com.livestockshop.authorizationserver.config;
