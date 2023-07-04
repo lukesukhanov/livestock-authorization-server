@@ -2,6 +2,8 @@ server:
   port: 9000
 
 spring:
+  application:
+    name: authorization-server
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres?currentSchema=livestock_shop_dev
@@ -15,5 +17,16 @@ spring:
       idle-timeout: 60000
       max-lifetime: 180000
       auto-commit: true
+  security:
+    oauth2:
+      authorizationserver:
+        issuer-url: http://127.0.0.1:9000
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/dev/changelog.yaml
+    liquibase-schema: livestock_shop_dev
+    default-schema: livestock_shop_dev
+    drop-first: true
+
 logging:
   config: classpath:logback-dev.xml

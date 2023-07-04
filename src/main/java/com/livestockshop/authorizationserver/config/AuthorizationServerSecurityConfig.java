@@ -1,21 +1,20 @@
 package com.livestockshop.authorizationserver.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
@@ -25,9 +24,9 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -35,56 +34,62 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
-@Configuration
-public class SecurityConfig {
-
-  @Autowired
-  private JdbcOperations jdbcOperations;
+@Configuration(proxyBeanMethods = false)
+public class AuthorizationServerSecurityConfig {
 
   @Bean
   @Order(1)
   SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
       throws Exception {
-    OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
-    http.apply(authorizationServerConfigurer);
-    authorizationServerConfigurer
-        .registeredClientRepository(registeredClientRepository())
-        .authorizationService(oAuth2AuthorizationService())
-        .authorizationConsentService(oAuth2AuthorizationConsentService())
-        .authorizationServerSettings(authorizationServerSettings())
-        .tokenGenerator(oAuth2TokenGenerator());
-    return http.build();
+    OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+        .oidc(withDefaults());
+    return http
+        .securityMatcher("/oauth2/**")
+        .securityContext(securityContext -> securityContext
+            .requireExplicitSave(true))
+        .headers(headers -> headers
+            .httpStrictTransportSecurity(hsts -> hsts
+                .disable()))
+        .cors(cors -> cors
+            .disable())
+        .csrf(csrf -> csrf
+            .disable())
+        .logout(logout -> logout
+            .disable())
+        .oauth2ResourceServer(resourceServer -> resourceServer
+            .jwt(withDefaults()))
+        .anonymous(anonymous -> anonymous
+            .disable())
+        .sessionManagement(sessionManagement -> sessionManagement
+            .disable())
+        .exceptionHandling(exceptions -> exceptions
+            .defaultAuthenticationEntryPointFor(
+                new LoginUrlAuthenticationEntryPoint("/login"),
+                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
+        .build();
   }
 
   @Bean
-  RegisteredClientRepository registeredClientRepository() {
-    return new JdbcRegisteredClientRepository(this.jdbcOperations);
+  RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
+    return new JdbcRegisteredClientRepository(jdbcTemplate);
   }
 
   @Bean
-  OAuth2AuthorizationService oAuth2AuthorizationService() {
-    return new JdbcOAuth2AuthorizationService(this.jdbcOperations, registeredClientRepository());
+  OAuth2AuthorizationService oAuth2AuthorizationService(JdbcTemplate jdbcTemplate,
+      RegisteredClientRepository registeredClientRepository) {
+    return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
   }
 
   @Bean
-  OAuth2AuthorizationConsentService oAuth2AuthorizationConsentService() {
-    return new JdbcOAuth2AuthorizationConsentService(this.jdbcOperations,
-        registeredClientRepository());
+  OAuth2AuthorizationConsentService oAuth2AuthorizationConsentService(JdbcTemplate jdbcTemplate,
+      RegisteredClientRepository registeredClientRepository) {
+    return new JdbcOAuth2AuthorizationConsentService(jdbcTemplate, registeredClientRepository);
   }
 
   @Bean
   AuthorizationServerSettings authorizationServerSettings() {
     return AuthorizationServerSettings.builder().build();
-  }
-
-  @Bean
-  OAuth2TokenGenerator<Jwt> oAuth2TokenGenerator() {
-    return new JwtGenerator(jwtEncoder());
-  }
-
-  @Bean
-  JwtEncoder jwtEncoder() {
-    return new NimbusJwtEncoder(jwkSource());
   }
 
   @Bean
