@@ -5,7 +5,8 @@ SET search_path TO livestock_shop_dev;
 -- 'users' table
 DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE users (
-	email varchar NOT NULL PRIMARY KEY CHECK(email LIKE '__%@__%.__%'),
+	id bigint NOT NULL PRIMARY KEY DEFAULT nextval('common_id_seq'),
+	email varchar NOT NULL CHECK(email LIKE '__%@__%.__%'),
 	password varchar NOT NULL,
 	enabled boolean NOT NULL,
 	created_at timestamp with time zone NOT NULL,
