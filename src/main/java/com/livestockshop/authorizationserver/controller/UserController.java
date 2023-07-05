@@ -49,7 +49,7 @@ public class UserController {
    * <p>
    * <i>Request</i>
    * <p>
-   * GET /users<br />
+   * POST /users<br />
    * Content-Type: application/x-www-form-urlencoded<br />
    * Accept: application/json<br />
    * <br />
