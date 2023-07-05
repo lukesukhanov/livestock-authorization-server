@@ -17,6 +17,23 @@ spring:
       idle-timeout: 60000
       max-lifetime: 180000
       auto-commit: true
+  jpa:
+    open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        default_schema: livestock_shop_dev
+        format_sql: true
+        jdbc:
+          batch_size: 15
+          fetch_size: 90
+        max_fetch_depth: 3
+        generate_statistics: false
+        temp:
+          use_jdbc_metadata_defaults: true
   security:
     oauth2:
       authorizationserver:
@@ -24,9 +41,9 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/dev/changelog.yaml
-    liquibase-schema: livestock_shop_dev
+    liquibase-schema: livestock_shop_dev_liquibase
     default-schema: livestock_shop_dev
-    drop-first: true
+    drop-first: false
 
 logging:
   config: classpath:logback-dev.xml

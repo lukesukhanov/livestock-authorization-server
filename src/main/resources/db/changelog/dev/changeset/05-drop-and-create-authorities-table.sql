@@ -5,11 +5,11 @@ SET search_path TO livestock_shop_dev;
 -- 'authorities' table
 DROP TABLE IF EXISTS authorities CASCADE;
 CREATE TABLE authorities (
-	username varchar NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+	users_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	authority varchar NOT NULL,
 	created_at timestamp with time zone NOT NULL,
 	last_modified_at timestamp with time zone NOT NULL,
-	PRIMARY KEY (username, authority)
+	PRIMARY KEY (users_id, authority)
 );
 -- rollback DROP TABLE IF EXISTS authorities CASCADE;
 

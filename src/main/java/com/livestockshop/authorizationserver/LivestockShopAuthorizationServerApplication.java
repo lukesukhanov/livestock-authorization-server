@@ -9,5 +9,4 @@ public class LivestockShopAuthorizationServerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(LivestockShopAuthorizationServerApplication.class, args);
 	}
-
 }
