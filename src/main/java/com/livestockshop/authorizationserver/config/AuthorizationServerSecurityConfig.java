@@ -1,7 +1,5 @@
 package com.livestockshop.authorizationserver.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
@@ -10,10 +8,7 @@ import java.util.UUID;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
@@ -22,11 +17,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -36,39 +27,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 
 @Configuration(proxyBeanMethods = false)
 public class AuthorizationServerSecurityConfig {
-
-  @Bean
-  @Order(1)
-  SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
-      throws Exception {
-    OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-        .oidc(withDefaults());
-    return http
-        .securityMatcher("/oauth2/**")
-        .securityContext(securityContext -> securityContext
-            .requireExplicitSave(true))
-        .headers(headers -> headers
-            .httpStrictTransportSecurity(hsts -> hsts
-                .disable()))
-        .cors(cors -> cors
-            .disable())
-        .csrf(csrf -> csrf
-            .disable())
-        .logout(logout -> logout
-            .disable())
-        .oauth2ResourceServer(resourceServer -> resourceServer
-            .jwt(withDefaults()))
-        .anonymous(anonymous -> anonymous
-            .disable())
-        .sessionManagement(sessionManagement -> sessionManagement
-            .disable())
-        .exceptionHandling(exceptions -> exceptions
-            .defaultAuthenticationEntryPointFor(
-                new LoginUrlAuthenticationEntryPoint("/login"),
-                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
-        .build();
-  }
 
   @Bean
   RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {

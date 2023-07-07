@@ -57,3 +57,7 @@ springdoc:
     operationsSorter: method
     disable-swagger-default-url: true
     use-root-path: true
+
+app:
+  security:
+    client-urls: http://127.0.0.1:8081
