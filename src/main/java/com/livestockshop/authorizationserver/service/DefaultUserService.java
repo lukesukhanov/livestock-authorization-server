@@ -39,10 +39,7 @@ public class DefaultUserService implements UserService {
     UserEntity userEntity = new UserEntity();
     userEntity.setEmail(email);
     userEntity.setPassword(this.passwordEncoder.encode(password));
-    userEntity.setAuthorities(Set.of(
-        new SimpleGrantedAuthority("ROLE_USER"),
-        new SimpleGrantedAuthority("openid"),
-        new SimpleGrantedAuthority("profile")));
+    userEntity.setAuthorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")));
     userEntity = this.userRepository.save(userEntity);
     return userEntity.getId();
   }
