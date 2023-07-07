@@ -33,7 +33,7 @@ public class OAuth2TokenSecurityConfig {
 
   @Bean
   @Order(2)
-  SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
+  SecurityFilterChain oauth2TokenSecurityFilterChain(HttpSecurity http)
       throws Exception {
     OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
     http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
@@ -46,25 +46,23 @@ public class OAuth2TokenSecurityConfig {
             .httpStrictTransportSecurity(hsts -> hsts
                 .disable()))
         .cors(cors -> cors
-            .configurationSource(oAuth2TokenCorsConfigurationSource()))
+            .configurationSource(oauth2TokenCorsConfigurationSource()))
         .csrf(csrf -> csrf
             .disable())
         .logout(logout -> logout
             .disable())
         .oauth2ResourceServer(resourceServer -> resourceServer
             .jwt(withDefaults())
-            .authenticationEntryPoint(oAuth2TokenAuthenticationEntryPoint()))
+            .authenticationEntryPoint(oauth2TokenAuthenticationEntryPoint()))
         .anonymous(anonymous -> anonymous
             .disable())
         .sessionManagement(sessionManagement -> sessionManagement
             .sessionCreationPolicy(SessionCreationPolicy.NEVER))
-        .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers(HttpMethod.POST, "/oauth2/token").authenticated())
         .build();
   }
 
   @Bean
-  CorsConfigurationSource oAuth2TokenCorsConfigurationSource() {
+  CorsConfigurationSource oauth2TokenCorsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOrigins(Arrays.asList("*")); // TODO this.clientUrls
     config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
@@ -77,7 +75,7 @@ public class OAuth2TokenSecurityConfig {
   }
 
   @Bean
-  AuthenticationEntryPoint oAuth2TokenAuthenticationEntryPoint() {
+  AuthenticationEntryPoint oauth2TokenAuthenticationEntryPoint() {
     return (request, response, e) -> {
       response.sendError(
           HttpStatus.UNAUTHORIZED.value(),

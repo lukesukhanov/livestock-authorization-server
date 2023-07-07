@@ -10,14 +10,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,7 +31,7 @@ public class OAuth2AuthorizeSecurityConfig {
 
   @Bean
   @Order(1)
-  SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
+  SecurityFilterChain oauth2AuthorizeSecurityFilterChain(HttpSecurity http)
       throws Exception {
     OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
     http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
@@ -46,7 +44,7 @@ public class OAuth2AuthorizeSecurityConfig {
             .httpStrictTransportSecurity(hsts -> hsts
                 .disable()))
         .cors(cors -> cors
-            .configurationSource(oAuth2AuthorizeCorsConfigurationSource()))
+            .configurationSource(oauth2AuthorizeCorsConfigurationSource()))
         .csrf(csrf -> csrf
             .disable())
         .logout(logout -> logout
@@ -58,17 +56,11 @@ public class OAuth2AuthorizeSecurityConfig {
             .disable())
         .sessionManagement(sessionManagement -> sessionManagement
             .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-        .exceptionHandling(exceptions -> exceptions
-            .defaultAuthenticationEntryPointFor(
-                new LoginUrlAuthenticationEntryPoint("/login"),
-                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
-        .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers(HttpMethod.GET, "/oauth2/authorize").authenticated())
         .build();
   }
 
   @Bean
-  CorsConfigurationSource oAuth2AuthorizeCorsConfigurationSource() {
+  CorsConfigurationSource oauth2AuthorizeCorsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOrigins(Arrays.asList("*")); // TODO this.clientUrls
     config.setAllowedMethods(List.of(HttpMethod.GET.toString()));
