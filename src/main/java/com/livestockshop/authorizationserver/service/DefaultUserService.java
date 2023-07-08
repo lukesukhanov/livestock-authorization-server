@@ -9,7 +9,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.livestockshop.authorizationserver.model.dto.AuthorizedUser;
 import com.livestockshop.authorizationserver.model.entity.UserEntity;
+import com.livestockshop.authorizationserver.model.mapper.UserMapper;
 import com.livestockshop.authorizationserver.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,23 +27,29 @@ public class DefaultUserService implements UserService {
 
   private final PasswordEncoder passwordEncoder;
 
+  private final UserMapper userMapper;
+
   @Transactional(readOnly = true)
   @Override
-  public UserEntity loadUserByUsername(String email) throws UsernameNotFoundException {
-    return this.userRepository
+  public AuthorizedUser loadUserByUsername(String email) throws UsernameNotFoundException {
+    UserEntity userEntity = this.userRepository
         .findByEmail(email)
         .orElseThrow(() -> new UsernameNotFoundException(
             "Can't find a user with email '%s'".formatted(email)));
+    return this.userMapper.userEntityToAuthorizedUser(userEntity);
   }
 
   @Override
-  public Long save(String email, String password) {
+  public void save(String email, String password) {
     UserEntity userEntity = new UserEntity();
     userEntity.setEmail(email);
     userEntity.setPassword(this.passwordEncoder.encode(password));
     userEntity.setAuthorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")));
+    userEntity.setEnabled(true);
+    userEntity.setAccountNonExpired(true);
+    userEntity.setAccountNonLocked(true);
+    userEntity.setCredentialsNonExpired(true);
     userEntity = this.userRepository.save(userEntity);
-    return userEntity.getId();
   }
 
   @Override

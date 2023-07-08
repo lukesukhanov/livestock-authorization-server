@@ -8,6 +8,10 @@ CREATE TABLE users (
 	id bigint NOT NULL PRIMARY KEY DEFAULT nextval('common_id_seq'),
 	email varchar NOT NULL CHECK(email LIKE '__%@__%.__%') UNIQUE,
 	password varchar NOT NULL,
+	enabled boolean NOT NULL,
+	account_non_expired boolean NOT NULL,
+	account_non_locked boolean NOT NULL,
+	credentials_non_expired boolean NOT NULL,
 	created_at timestamp with time zone NOT NULL,
 	last_modified_at timestamp with time zone NOT NULL
 );

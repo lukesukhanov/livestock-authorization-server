@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -13,9 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.livestockshop.authorizationserver.LivestockShopAuthorizationServerApplication;
+import com.livestockshop.authorizationserver.model.dto.AuthorizedUser;
 import com.livestockshop.authorizationserver.model.entity.UserEntity;
 import com.livestockshop.authorizationserver.repository.UserRepository;
 
@@ -35,15 +37,13 @@ class DefaultUserServiceTest {
   @DisplayName("loadUserByUsername(String) - normal return")
   final void loadUserByUsername_normalReturn() throws Exception {
     UserEntity user = new UserEntity();
-    user.setId(1L);
     user.setEmail("email");
     user.setPassword("password");
-    user.setAuthorities(new HashSet<>());
-    when(this.userRepository.findByEmail(user.getUsername()))
+    user.setAuthorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")));
+    when(this.userRepository.findByEmail(user.getEmail()))
         .thenReturn(Optional.of(user));
-    UserEntity foundUser = this.userService.loadUserByUsername(user.getUsername());
-    assertEquals(foundUser.getId(), user.getId());
-    assertEquals(foundUser.getUsername(), user.getUsername());
+    AuthorizedUser foundUser = this.userService.loadUserByUsername(user.getEmail());
+    assertEquals(foundUser.getUsername(), user.getEmail());
     assertEquals(foundUser.getPassword(), user.getPassword());
     assertEquals(foundUser.getAuthorities(), user.getAuthorities());
   }

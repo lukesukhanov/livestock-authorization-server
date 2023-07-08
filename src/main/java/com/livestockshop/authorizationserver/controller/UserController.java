@@ -1,9 +1,8 @@
 package com.livestockshop.authorizationserver.controller;
 
-import java.util.Map;
-
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.livestockshop.authorizationserver.exception.GeneralResponseEntityExceptionHandler;
 import com.livestockshop.authorizationserver.service.UserService;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +27,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RestController
 @RequestMapping(path = "/users")
+@Validated
 @RequiredArgsConstructor
 public class UserController {
 
@@ -57,8 +56,7 @@ public class UserController {
    * <p>
    * <i>Normal response</i>
    * <p>
-   * Status: 200<br />
-   * Body: {"userId": 1}
+   * Status: 204<br />
    * <p>
    * <i>Response in case of invalid request parameters</i>
    * <p>
@@ -75,21 +73,18 @@ public class UserController {
    * 
    * @param email a {@code String} with the user's email
    * @param password a {@code String} with the user's password
-   * @return a {@code ResponseEntity} with the status {@code 200} and the body
-   *         containing the saved user's id
+   * @return a {@code ResponseEntity} with the status {@code 204}
    */
   @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<?> create(
       @RequestParam("email")
-      @Valid
       @Email(message = "Email is incorrect")
       @NotBlank(message = "Email is required") String email,
       @RequestParam("password")
-      @Valid
       @NotBlank(message = "Password is required") String password) {
 
-    Long userId = this.userService.save(email, password);
-    return ResponseEntity.ok(Map.of("userId", userId));
+    this.userService.save(email, password);
+    return ResponseEntity.noContent().build();
   }
 }

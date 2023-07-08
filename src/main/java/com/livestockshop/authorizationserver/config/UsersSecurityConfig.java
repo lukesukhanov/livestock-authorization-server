@@ -1,7 +1,5 @@
 package com.livestockshop.authorizationserver.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,54 +9,51 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
-public class LoginSecurityConfig {
+public class UsersSecurityConfig {
 
   @Bean
-  @Order(3)
-  SecurityFilterChain loginSecurityFilterChain(HttpSecurity http) throws Exception {
+  @Order(4)
+  SecurityFilterChain usersSecurityFilterChain(HttpSecurity http) throws Exception {
     return http
-        .securityMatcher("/login")
+        .securityMatcher("/users")
         .securityContext(securityContext -> securityContext
-            .requireExplicitSave(true))
+            .disable())
         .headers(headers -> headers
             .httpStrictTransportSecurity(hsts -> hsts
                 .disable()))
         .cors(cors -> cors
-            .configurationSource(loginCorsConfigurationSource()))
+            .configurationSource(usersCorsConfigurationSource()))
         .csrf(csrf -> csrf
             .disable())
         .logout(logout -> logout
             .disable())
-        .formLogin(withDefaults())
+        .requestCache(requestCache -> requestCache
+            .disable())
         .anonymous(anonymous -> anonymous
             .disable())
         .sessionManagement(sessionManagement -> sessionManagement
-            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .disable())
         .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-            .requestMatchers(HttpMethod.GET, "/login").permitAll()
-            .requestMatchers(HttpMethod.POST, "/login").permitAll())
+            .requestMatchers(HttpMethod.POST, "/users").permitAll())
         .build();
   }
 
   @Bean
-  CorsConfigurationSource loginCorsConfigurationSource() {
+  CorsConfigurationSource usersCorsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOrigins(Arrays.asList("*")); // TODO this.clientUrls
-    config.setAllowedMethods(List.of(
-        HttpMethod.GET.toString(),
-        HttpMethod.POST.toString()));
-    config.setAllowCredentials(true);
-    config.setExposedHeaders(List.of(HttpHeaders.LOCATION));
+    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
+    config.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT));
+    config.setAllowCredentials(false);
     config.setMaxAge(3600L);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/login", config);
+    source.registerCorsConfiguration("/users", config);
     return source;
   }
 }
