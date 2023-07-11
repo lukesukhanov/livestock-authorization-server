@@ -38,7 +38,7 @@ public class RegisteredClients {
           .postLogoutRedirectUri("http://127.0.0.1:5500")
           .scope(OidcScopes.OPENID)
           .tokenSettings(TokenSettings.builder()
-              .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)
+              .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
               .accessTokenTimeToLive(Duration.of(5, ChronoUnit.MINUTES))
               .authorizationCodeTimeToLive(Duration.of(30, ChronoUnit.SECONDS))
               .build())
