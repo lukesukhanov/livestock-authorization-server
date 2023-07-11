@@ -30,6 +30,16 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/InvalidRequestParametersProblem'
+  /login:
+    post:
+      tags:
+      - Login
+      summary: Logs in a user
+      responses:
+        200:
+          description: Normal response
+        401:
+          description: Response in case of failed authentication
 components:
   schemas:
     UserForSave:

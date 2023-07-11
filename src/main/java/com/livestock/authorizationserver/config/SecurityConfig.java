@@ -35,6 +35,85 @@ public class SecurityConfig {
   private final String[] clientUrls;
 
   @Bean
+  @Order(4)
+  SecurityFilterChain usersSecurityFilterChain(HttpSecurity http) throws Exception {
+    return http
+        .securityMatcher("/users")
+        .securityContext(securityContext -> securityContext
+            .disable())
+        .headers(headers -> headers
+            .httpStrictTransportSecurity(hsts -> hsts
+                .disable()))
+        .cors(cors -> cors
+            .configurationSource(usersCorsConfigurationSource()))
+        .csrf(csrf -> csrf
+            .disable())
+        .logout(logout -> logout
+            .disable())
+        .requestCache(requestCache -> requestCache
+            .disable())
+        .anonymous(anonymous -> anonymous
+            .disable())
+        .sessionManagement(sessionManagement -> sessionManagement
+            .disable())
+        .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+            .requestMatchers(HttpMethod.POST, "/users").permitAll())
+        .build();
+  }
+
+  @Bean
+  CorsConfigurationSource usersCorsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(Arrays.asList("*")); // TODO this.clientUrls
+    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
+    config.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT));
+    config.setAllowCredentials(false);
+    config.setMaxAge(3600L);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/users", config);
+    return source;
+  }
+
+  @Bean
+  @Order(3)
+  SecurityFilterChain loginSecurityFilterChain(HttpSecurity http) throws Exception {
+    return http
+        .securityMatcher("/login")
+        .securityContext(securityContext -> securityContext
+            .requireExplicitSave(true))
+        .headers(headers -> headers
+            .httpStrictTransportSecurity(hsts -> hsts
+                .disable()))
+        .cors(cors -> cors
+            .configurationSource(loginCorsConfigurationSource()))
+        .csrf(csrf -> csrf
+            .disable())
+        .logout(logout -> logout
+            .disable())
+        .httpBasic(httpBasic -> httpBasic
+            .authenticationEntryPoint(defaultAuthenticationEntryPoint()))
+        .anonymous(anonymous -> anonymous
+            .disable())
+        .sessionManagement(sessionManagement -> sessionManagement
+            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+        .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+            .requestMatchers(HttpMethod.POST, "/login").authenticated())
+        .build();
+  }
+
+  @Bean
+  CorsConfigurationSource loginCorsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(Arrays.asList("*")); // TODO this.clientUrls
+    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
+    config.setAllowCredentials(true);
+    config.setMaxAge(3600L);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/login", config);
+    return source;
+  }
+
+  @Bean
   @Order(1)
   SecurityFilterChain oauth2AuthorizeSecurityFilterChain(HttpSecurity http)
       throws Exception {
@@ -118,7 +197,7 @@ public class SecurityConfig {
     source.registerCorsConfiguration("/oauth2/token", config);
     return source;
   }
-  
+
   @Bean
   @Order(5)
   SecurityFilterChain oauth2IntrospectSecurityFilterChain(HttpSecurity http)
@@ -159,88 +238,6 @@ public class SecurityConfig {
     config.setMaxAge(3600L);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/oauth2/introspect", config);
-    return source;
-  }
-
-  @Bean
-  @Order(3)
-  SecurityFilterChain loginSecurityFilterChain(HttpSecurity http) throws Exception {
-    return http
-        .securityMatcher("/login")
-        .securityContext(securityContext -> securityContext
-            .requireExplicitSave(true))
-        .headers(headers -> headers
-            .httpStrictTransportSecurity(hsts -> hsts
-                .disable()))
-        .cors(cors -> cors
-            .configurationSource(loginCorsConfigurationSource()))
-        .csrf(csrf -> csrf
-            .disable())
-        .logout(logout -> logout
-            .disable())
-        .formLogin(withDefaults())
-        .anonymous(anonymous -> anonymous
-            .disable())
-        .sessionManagement(sessionManagement -> sessionManagement
-            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-        .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-            .requestMatchers(HttpMethod.GET, "/login").permitAll()
-            .requestMatchers(HttpMethod.POST, "/login").permitAll())
-        .build();
-  }
-
-  @Bean
-  CorsConfigurationSource loginCorsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList("*")); // TODO this.clientUrls
-    config.setAllowedMethods(List.of(
-        HttpMethod.GET.toString(),
-        HttpMethod.POST.toString()));
-    config.setAllowCredentials(true);
-    config.setExposedHeaders(List.of(HttpHeaders.LOCATION));
-    config.setMaxAge(3600L);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/login", config);
-    return source;
-  }
-
-  @Bean
-  @Order(4)
-  SecurityFilterChain usersSecurityFilterChain(HttpSecurity http) throws Exception {
-    return http
-        .securityMatcher("/users")
-        .securityContext(securityContext -> securityContext
-            .disable())
-        .headers(headers -> headers
-            .httpStrictTransportSecurity(hsts -> hsts
-                .disable()))
-        .cors(cors -> cors
-            .configurationSource(usersCorsConfigurationSource()))
-        .csrf(csrf -> csrf
-            .disable())
-        .logout(logout -> logout
-            .disable())
-        .requestCache(requestCache -> requestCache
-            .disable())
-        .anonymous(anonymous -> anonymous
-            .disable())
-        .sessionManagement(sessionManagement -> sessionManagement
-            .disable())
-        .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-            .requestMatchers(HttpMethod.POST, "/users").permitAll())
-        .build();
-  }
-
-  @Bean
-  CorsConfigurationSource usersCorsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList("*")); // TODO this.clientUrls
-    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
-    config.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT));
-    config.setAllowCredentials(false);
-    config.setMaxAge(3600L);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/users", config);
     return source;
   }
 
