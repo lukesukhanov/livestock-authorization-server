@@ -24,28 +24,27 @@ public class RegisteredClients {
   @Bean
   CommandLineRunner registerClients(RegisteredClientRepository registeredClientRepository) {
     return args -> {
-      RegisteredClient productServiceClient = RegisteredClient
-          .withId("product-service")
-          .clientId("product-service")
-          .clientName("product-service")
+      RegisteredClient livestockWebClient = RegisteredClient
+          .withId("livestock-web")
+          .clientId("livestock-web")
+          .clientName("livestock-web")
           .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
           .clientSettings(ClientSettings.builder()
               .requireAuthorizationConsent(false)
               .requireProofKey(true)
               .build())
           .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-          .redirectUri("http://127.0.0.1:8081")
-          .postLogoutRedirectUri("http://127.0.0.1:8081")
+          .redirectUri("http://127.0.0.1:5500")
+          .postLogoutRedirectUri("http://127.0.0.1:5500")
           .scope(OidcScopes.OPENID)
-          .scope(OidcScopes.PROFILE)
           .tokenSettings(TokenSettings.builder()
-              .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
+              .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)
               .accessTokenTimeToLive(Duration.of(5, ChronoUnit.MINUTES))
               .authorizationCodeTimeToLive(Duration.of(30, ChronoUnit.SECONDS))
               .build())
           .build();
-      registeredClientRepository.save(productServiceClient);
-      log.info("Registered product-service client: {}", productServiceClient);
+      registeredClientRepository.save(livestockWebClient);
+      log.info("Registered livestock-web client: {}", livestockWebClient);
     };
   }
 }

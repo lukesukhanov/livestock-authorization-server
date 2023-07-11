@@ -30,7 +30,7 @@ class LoginControllerTest {
   final void login_normalReturn() throws Exception {
     this.mockMvc.perform(post("/login"))
         .andExpectAll(
-            status().isOk());
+            status().isNoContent());
   }
   
   @Test

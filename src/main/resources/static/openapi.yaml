@@ -36,7 +36,7 @@ paths:
       - Login
       summary: Logs in a user
       responses:
-        200:
+        204:
           description: Normal response
         401:
           description: Response in case of failed authentication

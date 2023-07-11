@@ -1,1 +1,0 @@
-# livestock-shop-authorization-server

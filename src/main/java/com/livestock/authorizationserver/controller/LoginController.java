@@ -36,7 +36,7 @@ public class LoginController {
    * <p>
    * <i>Normal response</i>
    * <p>
-   * Status: 200<br />
+   * Status: 204<br />
    * <p>
    * <i>Response in case of failed authentication</i>
    * <p>
@@ -46,6 +46,6 @@ public class LoginController {
    */
   @PostMapping
   public ResponseEntity<?> login() {
-    return ResponseEntity.ok().build();
+    return ResponseEntity.noContent().build();
   }
 }

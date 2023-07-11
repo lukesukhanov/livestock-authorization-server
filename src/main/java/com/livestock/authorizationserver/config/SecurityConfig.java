@@ -64,7 +64,7 @@ public class SecurityConfig {
   @Bean
   CorsConfigurationSource usersCorsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList("*")); // TODO this.clientUrls
+    config.setAllowedOrigins(Arrays.asList(this.clientUrls));
     config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
     config.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT));
     config.setAllowCredentials(false);
@@ -104,8 +104,9 @@ public class SecurityConfig {
   @Bean
   CorsConfigurationSource loginCorsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList("*")); // TODO this.clientUrls
+    config.setAllowedOrigins(Arrays.asList(this.clientUrls));
     config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
+    config.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION));
     config.setAllowCredentials(true);
     config.setMaxAge(3600L);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -146,7 +147,7 @@ public class SecurityConfig {
   @Bean
   CorsConfigurationSource oauth2AuthorizeCorsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList("*")); // TODO this.clientUrls
+    config.setAllowedOrigins(Arrays.asList(this.clientUrls));
     config.setAllowedMethods(List.of(HttpMethod.GET.toString()));
     config.setAllowCredentials(true);
     config.setMaxAge(3600L);
@@ -188,7 +189,7 @@ public class SecurityConfig {
   @Bean
   CorsConfigurationSource oauth2TokenCorsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList("*")); // TODO this.clientUrls
+    config.setAllowedOrigins(Arrays.asList(this.clientUrls));
     config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
     config.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE));
     config.setAllowCredentials(true);
@@ -198,48 +199,48 @@ public class SecurityConfig {
     return source;
   }
 
-  @Bean
-  @Order(5)
-  SecurityFilterChain oauth2IntrospectSecurityFilterChain(HttpSecurity http)
-      throws Exception {
-    OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-        .oidc(withDefaults());
-    return http
-        .securityMatcher("/oauth2/introspect")
-        .securityContext(securityContext -> securityContext
-            .requireExplicitSave(true))
-        .headers(headers -> headers
-            .httpStrictTransportSecurity(hsts -> hsts
-                .disable()))
-        .cors(cors -> cors
-            .configurationSource(oauth2IntrospectCorsConfigurationSource()))
-        .csrf(csrf -> csrf
-            .disable())
-        .logout(logout -> logout
-            .disable())
-        .oauth2ResourceServer(resourceServer -> resourceServer
-            .jwt(withDefaults())
-            .authenticationEntryPoint(defaultAuthenticationEntryPoint()))
-        .anonymous(anonymous -> anonymous
-            .disable())
-        .sessionManagement(sessionManagement -> sessionManagement
-            .sessionCreationPolicy(SessionCreationPolicy.NEVER))
-        .build();
-  }
-
-  @Bean
-  CorsConfigurationSource oauth2IntrospectCorsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList("*")); // TODO this.clientUrls
-    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
-    config.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT));
-    config.setAllowCredentials(true);
-    config.setMaxAge(3600L);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/oauth2/introspect", config);
-    return source;
-  }
+//  @Bean
+//  @Order(5)
+//  SecurityFilterChain oauth2IntrospectSecurityFilterChain(HttpSecurity http)
+//      throws Exception {
+//    OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+//    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+//        .oidc(withDefaults());
+//    return http
+//        .securityMatcher("/oauth2/introspect")
+//        .securityContext(securityContext -> securityContext
+//            .requireExplicitSave(true))
+//        .headers(headers -> headers
+//            .httpStrictTransportSecurity(hsts -> hsts
+//                .disable()))
+//        .cors(cors -> cors
+//            .configurationSource(oauth2IntrospectCorsConfigurationSource()))
+//        .csrf(csrf -> csrf
+//            .disable())
+//        .logout(logout -> logout
+//            .disable())
+//        .oauth2ResourceServer(resourceServer -> resourceServer
+//            .jwt(withDefaults())
+//            .authenticationEntryPoint(defaultAuthenticationEntryPoint()))
+//        .anonymous(anonymous -> anonymous
+//            .disable())
+//        .sessionManagement(sessionManagement -> sessionManagement
+//            .sessionCreationPolicy(SessionCreationPolicy.NEVER))
+//        .build();
+//  }
+//
+//  @Bean
+//  CorsConfigurationSource oauth2IntrospectCorsConfigurationSource() {
+//    CorsConfiguration config = new CorsConfiguration();
+//    config.setAllowedOrigins(Arrays.asList(this.clientUrls));
+//    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
+//    config.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT));
+//    config.setAllowCredentials(true);
+//    config.setMaxAge(3600L);
+//    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//    source.registerCorsConfiguration("/oauth2/introspect", config);
+//    return source;
+//  }
 
   @Bean
   AuthenticationEntryPoint defaultAuthenticationEntryPoint() {
