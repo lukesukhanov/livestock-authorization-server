@@ -1,0 +1,11 @@
+databaseChangeLog:
+- include:
+    file: db/changelog/dev/changeset/01-drop-and-create-oauth2-registered-client-table.sql
+- include:
+    file: db/changelog/dev/changeset/02-drop-and-create-oauth2-authorization-table.sql
+- include:
+    file: db/changelog/dev/changeset/03-drop-and-create-oauth2-authorization-consent-table.sql
+- include:
+    file: db/changelog/dev/changeset/04-drop-and-create-users-table.sql
+- include:
+    file: db/changelog/dev/changeset/05-drop-and-create-authorities-table.sql
