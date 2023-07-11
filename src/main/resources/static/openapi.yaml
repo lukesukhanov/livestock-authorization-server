@@ -20,7 +20,7 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/UserForm'
+              $ref: '#/components/schemas/UserForSave'
       responses:
         204:
           description: Normal response
@@ -32,9 +32,15 @@ paths:
                 $ref: '#/components/schemas/InvalidRequestParametersProblem'
 components:
   schemas:
-    UserForm:
+    UserForSave:
       type: object
       properties:
+        firstName:
+          type: string
+          example: Вася
+        lastName:
+          type: string
+          example: Иванов
         email:
           type: string
           example: vasya@gmail.com
