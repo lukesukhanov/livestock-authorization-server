@@ -38,9 +38,9 @@ public class RegisteredClients {
           .postLogoutRedirectUri("http://127.0.0.1:5500")
           .scope(OidcScopes.OPENID)
           .tokenSettings(TokenSettings.builder()
-              .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
-              .accessTokenTimeToLive(Duration.of(5, ChronoUnit.MINUTES))
               .authorizationCodeTimeToLive(Duration.of(30, ChronoUnit.SECONDS))
+              .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)
+              .accessTokenTimeToLive(Duration.of(5, ChronoUnit.MINUTES))
               .build())
           .build();
       registeredClientRepository.save(livestockWebClient);

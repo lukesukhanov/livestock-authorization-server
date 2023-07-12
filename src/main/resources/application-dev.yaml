@@ -53,6 +53,9 @@ spring:
               - profile
               require-authorization-consent: false
               require-proof-key: true
+      resourceserver:
+        jwt:
+          issuer-uri: http://127.0.0.1:9000
 
   liquibase:
     enabled: true
