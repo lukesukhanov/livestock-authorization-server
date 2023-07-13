@@ -40,9 +40,9 @@ public class RegisteredClients {
           .scope("cart")
           .scope("cart.write")
           .tokenSettings(TokenSettings.builder()
-              .authorizationCodeTimeToLive(Duration.of(30, ChronoUnit.SECONDS))
+              .authorizationCodeTimeToLive(Duration.of(10, ChronoUnit.SECONDS))
               .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)
-              .accessTokenTimeToLive(Duration.of(5, ChronoUnit.MINUTES))
+              .accessTokenTimeToLive(Duration.of(10, ChronoUnit.MINUTES))
               .build())
           .build();
       registeredClientRepository.save(livestockWebClient);
