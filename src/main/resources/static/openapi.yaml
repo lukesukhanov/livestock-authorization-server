@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Authorization server
-  description: Authorization server for the project 'Livestock shop'.
+  description: Authorization server for the project 'Livestock'.
   contact:
     name: Luke Sukhanov
     email: lukesukhanov@gmail.com
@@ -83,3 +83,7 @@ components:
         reason:
           type: string
           example: Email is required
+  securitySchemes:
+    basic_auth:
+      type: http
+      scheme: basic
