@@ -12,14 +12,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
@@ -79,11 +77,6 @@ public class AuthorizationServerSecurityConfig {
       throw new IllegalStateException(e);
     }
     return keyPair;
-  }
-
-  @Bean
-  JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-    return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
   }
 
   @Bean

@@ -38,21 +38,6 @@ spring:
     oauth2:
       authorizationserver:
         issuer-url: http://127.0.0.1:9000
-        client:
-          product-service:
-            registration:
-              client-id: product-service
-              client-authentication-methods:
-              - none
-              authorization-grant-types:
-              - authorization_code
-              redirect-uris:
-              - http://127.0.0.1:8081
-              scopes:
-              - openid
-              - profile
-              require-authorization-consent: false
-              require-proof-key: true
       resourceserver:
         jwt:
           issuer-uri: http://127.0.0.1:9000

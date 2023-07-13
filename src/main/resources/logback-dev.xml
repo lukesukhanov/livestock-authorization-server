@@ -27,11 +27,9 @@
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILE" />
 	</root>
 	<logger name="com.livestockshop.authorizationserver" level="DEBUG" additivity="false">
 		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILE" />
 	</logger>
 	<logger name="org.springframework.security" level="TRACE" additivity="false">
 		<appender-ref ref="STDOUT" />

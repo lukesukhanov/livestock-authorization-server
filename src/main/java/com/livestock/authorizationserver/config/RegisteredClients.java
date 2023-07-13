@@ -37,6 +37,8 @@ public class RegisteredClients {
           .redirectUri("http://127.0.0.1:5500")
           .postLogoutRedirectUri("http://127.0.0.1:5500")
           .scope(OidcScopes.OPENID)
+          .scope("cart")
+          .scope("cart.write")
           .tokenSettings(TokenSettings.builder()
               .authorizationCodeTimeToLive(Duration.of(30, ChronoUnit.SECONDS))
               .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)

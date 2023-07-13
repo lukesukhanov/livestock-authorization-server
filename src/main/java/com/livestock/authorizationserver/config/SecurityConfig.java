@@ -16,14 +16,17 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 
 import lombok.RequiredArgsConstructor;
 
@@ -136,7 +139,7 @@ public class SecurityConfig {
             .disable())
         .oauth2ResourceServer(resourceServer -> resourceServer
             .jwt(withDefaults())
-            .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
+            .authenticationEntryPoint(defaultAuthenticationEntryPoint()))
         .anonymous(anonymous -> anonymous
             .disable())
         .sessionManagement(sessionManagement -> sessionManagement
@@ -242,6 +245,33 @@ public class SecurityConfig {
   }
 
   @Bean
+  @Order(6)
+  SecurityFilterChain endpointsForClientsSecurityFilterChain(HttpSecurity http)
+      throws Exception {
+    OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+        .oidc(withDefaults());
+    return http
+        .securityMatcher("/.well-known/*", "/oauth2/jwks")
+        .securityContext(securityContext -> securityContext
+            .disable())
+        .headers(headers -> headers
+            .httpStrictTransportSecurity(hsts -> hsts
+                .disable()))
+        .cors(cors -> cors
+            .disable())
+        .csrf(csrf -> csrf
+            .disable())
+        .logout(logout -> logout
+            .disable())
+        .anonymous(anonymous -> anonymous
+            .disable())
+        .sessionManagement(sessionManagement -> sessionManagement
+            .disable())
+        .build();
+  }
+
+  @Bean
   AuthenticationEntryPoint defaultAuthenticationEntryPoint() {
     return (request, response, e) -> {
       response.sendError(
@@ -253,5 +283,10 @@ public class SecurityConfig {
   @Bean
   PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
+    return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
   }
 }
