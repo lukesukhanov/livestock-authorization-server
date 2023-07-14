@@ -1,5 +1,5 @@
 server:
-  port: 9000
+  port: 0
   servlet:
     session:
       timeout: 15s
@@ -47,13 +47,22 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:9000
-
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/dev/changelog.yaml
     liquibase-schema: livestock_shop_dev_liquibase
     default-schema: livestock_shop_dev
     drop-first: false
+
+eureka:
+  instance:
+    instanceId: ${spring.application.name}:${random.value}
+  client:
+    serviceUrl:
+      defaultZone:
+      - http://localhost:8761/eureka
+    healthcheck:
+      enabled: true
 
 logging:
   config: classpath:logback-dev.xml
@@ -80,7 +89,7 @@ management:
         version: 1.0
     health:
       show-details: always
-      
+
 app:
   security:
     cors-origins: http://localhost:5500, http://127.0.0.1:5500
