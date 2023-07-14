@@ -1,6 +1,6 @@
--- changeset lukesukhanov:5
+-- changeset lukesukhanov:8
 
-SET search_path TO livestock_shop_dev;
+SET search_path TO livestock_stage;
 
 -- 'authorities' table
 DROP TABLE IF EXISTS authorities CASCADE;

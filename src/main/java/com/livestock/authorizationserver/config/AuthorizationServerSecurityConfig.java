@@ -7,6 +7,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,6 +33,9 @@ import com.nimbusds.jose.proc.SecurityContext;
 @Configuration(proxyBeanMethods = false)
 public class AuthorizationServerSecurityConfig {
 
+  @Value("${spring.security.oauth2.authorizationserver.issuer-url}")
+  private String issuerUrl;
+  
   @Bean
   RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
     return new JdbcRegisteredClientRepository(jdbcTemplate);
@@ -51,7 +55,9 @@ public class AuthorizationServerSecurityConfig {
 
   @Bean
   AuthorizationServerSettings authorizationServerSettings() {
-    return AuthorizationServerSettings.builder().build();
+    return AuthorizationServerSettings.builder()
+        .issuer(this.issuerUrl)
+        .build();
   }
 
   @Bean

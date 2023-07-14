@@ -1,6 +1,6 @@
--- changeset lukesukhanov:4
+-- changeset lukesukhanov:7
 
-SET search_path TO livestock_shop_dev;
+SET search_path TO livestock_stage;
 
 -- 'users' table
 DROP TABLE IF EXISTS users CASCADE;

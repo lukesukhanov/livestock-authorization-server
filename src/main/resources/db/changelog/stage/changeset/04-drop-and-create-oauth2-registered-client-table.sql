@@ -1,6 +1,6 @@
--- changeset lukesukhanov:1
+-- changeset lukesukhanov:4
 
-SET search_path TO livestock_shop_dev;
+SET search_path TO livestock_stage;
 
 -- 'oauth2_registered_client' table
 DROP TABLE IF EXISTS oauth2_registered_client CASCADE;

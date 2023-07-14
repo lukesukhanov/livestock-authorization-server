@@ -2,14 +2,9 @@ package com.livestock.authorizationserver.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,18 +16,12 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
 @Configuration
 public class SecurityConfig {
-
-  @Value("${app.security.cors-origins}")
-  private String[] corsOrigins;
 
   @Bean
   @Order(1)
@@ -45,7 +34,7 @@ public class SecurityConfig {
             .httpStrictTransportSecurity(hsts -> hsts
                 .disable()))
         .cors(cors -> cors
-            .configurationSource(loginCorsConfigurationSource()))
+            .disable())
         .csrf(csrf -> csrf
             .disable())
         .logout(logout -> logout
@@ -59,19 +48,6 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
             .requestMatchers(HttpMethod.POST, "/login").authenticated())
         .build();
-  }
-
-  @Bean
-  CorsConfigurationSource loginCorsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList(this.corsOrigins));
-    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
-    config.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION));
-    config.setAllowCredentials(true);
-    config.setMaxAge(3600L);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/login", config);
-    return source;
   }
 
   @Bean
@@ -89,7 +65,7 @@ public class SecurityConfig {
             .httpStrictTransportSecurity(hsts -> hsts
                 .disable()))
         .cors(cors -> cors
-            .configurationSource(oauth2AuthorizeCorsConfigurationSource()))
+            .disable())
         .csrf(csrf -> csrf
             .disable())
         .logout(logout -> logout
@@ -101,18 +77,6 @@ public class SecurityConfig {
         .exceptionHandling(exception -> exception
             .authenticationEntryPoint(defaultAuthenticationEntryPoint()))
         .build();
-  }
-
-  @Bean
-  CorsConfigurationSource oauth2AuthorizeCorsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList(this.corsOrigins));
-    config.setAllowedMethods(List.of(HttpMethod.GET.toString()));
-    config.setAllowCredentials(true);
-    config.setMaxAge(3600L);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/oauth2/authorize", config);
-    return source;
   }
 
   @Bean
@@ -130,7 +94,7 @@ public class SecurityConfig {
             .httpStrictTransportSecurity(hsts -> hsts
                 .disable()))
         .cors(cors -> cors
-            .configurationSource(oauth2TokenCorsConfigurationSource()))
+            .disable())
         .csrf(csrf -> csrf
             .disable())
         .logout(logout -> logout
@@ -145,19 +109,6 @@ public class SecurityConfig {
   }
 
   @Bean
-  CorsConfigurationSource oauth2TokenCorsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList(this.corsOrigins));
-    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
-    config.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE));
-    config.setAllowCredentials(true);
-    config.setMaxAge(3600L);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/oauth2/token", config);
-    return source;
-  }
-
-  @Bean
   @Order(4)
   SecurityFilterChain usersSecurityFilterChain(HttpSecurity http) throws Exception {
     return http
@@ -168,7 +119,7 @@ public class SecurityConfig {
             .httpStrictTransportSecurity(hsts -> hsts
                 .disable()))
         .cors(cors -> cors
-            .configurationSource(usersCorsConfigurationSource()))
+            .disable())
         .csrf(csrf -> csrf
             .disable())
         .logout(logout -> logout
@@ -182,19 +133,6 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
             .requestMatchers(HttpMethod.POST, "/users").permitAll())
         .build();
-  }
-
-  @Bean
-  CorsConfigurationSource usersCorsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList(this.corsOrigins));
-    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
-    config.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT));
-    config.setAllowCredentials(false);
-    config.setMaxAge(3600L);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/users", config);
-    return source;
   }
 
   @Bean

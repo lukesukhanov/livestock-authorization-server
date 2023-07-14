@@ -1,6 +1,6 @@
--- changeset lukesukhanov:2
+-- changeset lukesukhanov:5
 
-SET search_path TO livestock_shop_dev;
+SET search_path TO livestock_stage;
 
 -- 'oauth2_authorization' table
 DROP TABLE IF EXISTS oauth2_authorization CASCADE;
