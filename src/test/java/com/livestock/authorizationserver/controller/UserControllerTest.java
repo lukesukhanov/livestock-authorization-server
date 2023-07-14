@@ -16,11 +16,11 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.livestock.authorizationserver.LivestockShopAuthorizationServerApplication;
+import com.livestock.authorizationserver.Application;
 import com.livestock.authorizationserver.model.dto.UserForSave;
 import com.livestock.authorizationserver.service.UserService;
 
-@SpringBootTest(classes = LivestockShopAuthorizationServerApplication.class)
+@SpringBootTest(classes = Application.class)
 @DisplayName("UserController")
 @Tag("controller")
 @Tag("user")

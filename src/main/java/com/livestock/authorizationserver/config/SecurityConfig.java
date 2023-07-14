@@ -28,14 +28,134 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
-import lombok.RequiredArgsConstructor;
-
 @Configuration
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-  @Value("${app.security.client-urls}")
-  private final String[] clientUrls;
+  @Value("${app.security.cors-origins}")
+  private String[] corsOrigins;
+
+  @Bean
+  @Order(1)
+  SecurityFilterChain loginSecurityFilterChain(HttpSecurity http) throws Exception {
+    return http
+        .securityMatcher("/login")
+        .securityContext(securityContext -> securityContext
+            .requireExplicitSave(true))
+        .headers(headers -> headers
+            .httpStrictTransportSecurity(hsts -> hsts
+                .disable()))
+        .cors(cors -> cors
+            .configurationSource(loginCorsConfigurationSource()))
+        .csrf(csrf -> csrf
+            .disable())
+        .logout(logout -> logout
+            .disable())
+        .httpBasic(httpBasic -> httpBasic
+            .authenticationEntryPoint(defaultAuthenticationEntryPoint()))
+        .anonymous(anonymous -> anonymous
+            .disable())
+        .sessionManagement(sessionManagement -> sessionManagement
+            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+        .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+            .requestMatchers(HttpMethod.POST, "/login").authenticated())
+        .build();
+  }
+
+  @Bean
+  CorsConfigurationSource loginCorsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(Arrays.asList(this.corsOrigins));
+    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
+    config.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION));
+    config.setAllowCredentials(true);
+    config.setMaxAge(3600L);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/login", config);
+    return source;
+  }
+
+  @Bean
+  @Order(2)
+  SecurityFilterChain oauth2AuthorizeSecurityFilterChain(HttpSecurity http)
+      throws Exception {
+    OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+        .oidc(withDefaults());
+    return http
+        .securityMatcher("/oauth2/authorize")
+        .securityContext(securityContext -> securityContext
+            .requireExplicitSave(true))
+        .headers(headers -> headers
+            .httpStrictTransportSecurity(hsts -> hsts
+                .disable()))
+        .cors(cors -> cors
+            .configurationSource(oauth2AuthorizeCorsConfigurationSource()))
+        .csrf(csrf -> csrf
+            .disable())
+        .logout(logout -> logout
+            .disable())
+        .anonymous(anonymous -> anonymous
+            .disable())
+        .sessionManagement(sessionManagement -> sessionManagement
+            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+        .exceptionHandling(exception -> exception
+            .authenticationEntryPoint(defaultAuthenticationEntryPoint()))
+        .build();
+  }
+
+  @Bean
+  CorsConfigurationSource oauth2AuthorizeCorsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(Arrays.asList(this.corsOrigins));
+    config.setAllowedMethods(List.of(HttpMethod.GET.toString()));
+    config.setAllowCredentials(true);
+    config.setMaxAge(3600L);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/oauth2/authorize", config);
+    return source;
+  }
+
+  @Bean
+  @Order(3)
+  SecurityFilterChain oauth2TokenSecurityFilterChain(HttpSecurity http)
+      throws Exception {
+    OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+        .oidc(withDefaults());
+    return http
+        .securityMatcher("/oauth2/token")
+        .securityContext(securityContext -> securityContext
+            .requireExplicitSave(true))
+        .headers(headers -> headers
+            .httpStrictTransportSecurity(hsts -> hsts
+                .disable()))
+        .cors(cors -> cors
+            .configurationSource(oauth2TokenCorsConfigurationSource()))
+        .csrf(csrf -> csrf
+            .disable())
+        .logout(logout -> logout
+            .disable())
+        .anonymous(anonymous -> anonymous
+            .disable())
+        .sessionManagement(sessionManagement -> sessionManagement
+            .sessionCreationPolicy(SessionCreationPolicy.NEVER))
+        .exceptionHandling(exception -> exception
+            .authenticationEntryPoint(defaultAuthenticationEntryPoint()))
+        .build();
+  }
+
+  @Bean
+  CorsConfigurationSource oauth2TokenCorsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(Arrays.asList(this.corsOrigins));
+    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
+    config.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE));
+    config.setAllowCredentials(true);
+    config.setMaxAge(3600L);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/oauth2/token", config);
+    return source;
+  }
 
   @Bean
   @Order(4)
@@ -67,7 +187,7 @@ public class SecurityConfig {
   @Bean
   CorsConfigurationSource usersCorsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList(this.clientUrls));
+    config.setAllowedOrigins(Arrays.asList(this.corsOrigins));
     config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
     config.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT));
     config.setAllowCredentials(false);
@@ -78,174 +198,7 @@ public class SecurityConfig {
   }
 
   @Bean
-  @Order(3)
-  SecurityFilterChain loginSecurityFilterChain(HttpSecurity http) throws Exception {
-    return http
-        .securityMatcher("/login")
-        .securityContext(securityContext -> securityContext
-            .requireExplicitSave(true))
-        .headers(headers -> headers
-            .httpStrictTransportSecurity(hsts -> hsts
-                .disable()))
-        .cors(cors -> cors
-            .configurationSource(loginCorsConfigurationSource()))
-        .csrf(csrf -> csrf
-            .disable())
-        .logout(logout -> logout
-            .disable())
-        .httpBasic(httpBasic -> httpBasic
-            .authenticationEntryPoint(defaultAuthenticationEntryPoint()))
-        .anonymous(anonymous -> anonymous
-            .disable())
-        .sessionManagement(sessionManagement -> sessionManagement
-            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-        .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-            .requestMatchers(HttpMethod.POST, "/login").authenticated())
-        .build();
-  }
-
-  @Bean
-  CorsConfigurationSource loginCorsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList(this.clientUrls));
-    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
-    config.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION));
-    config.setAllowCredentials(true);
-    config.setMaxAge(3600L);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/login", config);
-    return source;
-  }
-
-  @Bean
-  @Order(1)
-  SecurityFilterChain oauth2AuthorizeSecurityFilterChain(HttpSecurity http)
-      throws Exception {
-    OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-        .oidc(withDefaults());
-    return http
-        .securityMatcher("/oauth2/authorize")
-        .securityContext(securityContext -> securityContext
-            .requireExplicitSave(true))
-        .headers(headers -> headers
-            .httpStrictTransportSecurity(hsts -> hsts
-                .disable()))
-        .cors(cors -> cors
-            .configurationSource(oauth2AuthorizeCorsConfigurationSource()))
-        .csrf(csrf -> csrf
-            .disable())
-        .logout(logout -> logout
-            .disable())
-        .oauth2ResourceServer(resourceServer -> resourceServer
-            .jwt(withDefaults())
-            .authenticationEntryPoint(defaultAuthenticationEntryPoint()))
-        .anonymous(anonymous -> anonymous
-            .disable())
-        .sessionManagement(sessionManagement -> sessionManagement
-            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-        .build();
-  }
-
-  @Bean
-  CorsConfigurationSource oauth2AuthorizeCorsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList(this.clientUrls));
-    config.setAllowedMethods(List.of(HttpMethod.GET.toString()));
-    config.setAllowCredentials(true);
-    config.setMaxAge(3600L);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/oauth2/authorize", config);
-    return source;
-  }
-
-  @Bean
-  @Order(2)
-  SecurityFilterChain oauth2TokenSecurityFilterChain(HttpSecurity http)
-      throws Exception {
-    OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-        .oidc(withDefaults());
-    return http
-        .securityMatcher("/oauth2/token")
-        .securityContext(securityContext -> securityContext
-            .requireExplicitSave(true))
-        .headers(headers -> headers
-            .httpStrictTransportSecurity(hsts -> hsts
-                .disable()))
-        .cors(cors -> cors
-            .configurationSource(oauth2TokenCorsConfigurationSource()))
-        .csrf(csrf -> csrf
-            .disable())
-        .logout(logout -> logout
-            .disable())
-        .oauth2ResourceServer(resourceServer -> resourceServer
-            .jwt(withDefaults())
-            .authenticationEntryPoint(defaultAuthenticationEntryPoint()))
-        .anonymous(anonymous -> anonymous
-            .disable())
-        .sessionManagement(sessionManagement -> sessionManagement
-            .sessionCreationPolicy(SessionCreationPolicy.NEVER))
-        .build();
-  }
-
-  @Bean
-  CorsConfigurationSource oauth2TokenCorsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList(this.clientUrls));
-    config.setAllowedMethods(List.of(HttpMethod.POST.toString()));
-    config.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE));
-    config.setAllowCredentials(true);
-    config.setMaxAge(3600L);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/oauth2/token", config);
-    return source;
-  }
-
-  @Bean
   @Order(5)
-  SecurityFilterChain userinfoSecurityFilterChain(HttpSecurity http)
-      throws Exception {
-    OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-        .oidc(withDefaults());
-    return http
-        .securityMatcher("/userinfo")
-        .securityContext(securityContext -> securityContext
-            .disable())
-        .headers(headers -> headers
-            .httpStrictTransportSecurity(hsts -> hsts
-                .disable()))
-        .cors(cors -> cors
-            .configurationSource(userinfoCorsConfigurationSource()))
-        .csrf(csrf -> csrf
-            .disable())
-        .logout(logout -> logout
-            .disable())
-        .oauth2ResourceServer(resourceServer -> resourceServer
-            .jwt(withDefaults())
-            .authenticationEntryPoint(defaultAuthenticationEntryPoint()))
-        .anonymous(anonymous -> anonymous
-            .disable())
-        .sessionManagement(sessionManagement -> sessionManagement
-            .disable())
-        .build();
-  }
-
-  @Bean
-  CorsConfigurationSource userinfoCorsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList(this.clientUrls));
-    config.setAllowedMethods(List.of(HttpMethod.GET.toString()));
-    config.setAllowCredentials(true);
-    config.setMaxAge(3600L);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/userinfo", config);
-    return source;
-  }
-
-  @Bean
-  @Order(6)
   SecurityFilterChain endpointsForClientsSecurityFilterChain(HttpSecurity http)
       throws Exception {
     OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);

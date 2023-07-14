@@ -16,12 +16,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import com.livestock.authorizationserver.LivestockShopAuthorizationServerApplication;
+import com.livestock.authorizationserver.Application;
 import com.livestock.authorizationserver.model.dto.AuthorizedUser;
 import com.livestock.authorizationserver.model.entity.UserEntity;
 import com.livestock.authorizationserver.repository.UserRepository;
 
-@SpringBootTest(classes = LivestockShopAuthorizationServerApplication.class)
+@SpringBootTest(classes = Application.class)
 @DisplayName("DefaultUserDetailsManager")
 @Tag("service")
 @Tag("user")

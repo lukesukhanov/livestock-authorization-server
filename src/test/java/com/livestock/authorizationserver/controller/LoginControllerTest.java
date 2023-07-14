@@ -12,9 +12,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.livestock.authorizationserver.LivestockShopAuthorizationServerApplication;
+import com.livestock.authorizationserver.Application;
 
-@SpringBootTest(classes = LivestockShopAuthorizationServerApplication.class)
+@SpringBootTest(classes = Application.class)
 @DisplayName("LoginController")
 @Tag("controller")
 @Tag("login")
