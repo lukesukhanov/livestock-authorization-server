@@ -8,13 +8,13 @@ info:
     url: https://github.com/lukesukhanov
   version: '1.0'
 servers:
-- url: http://localhost:8765
-- url: http://localhost:9000
+  - url: http://localhost:8765
+  - url: http://localhost:9000
 paths:
   /users:
     post:
       tags:
-      - Users
+        - Users
       summary: Saves a new user
       requestBody:
         required: true
@@ -34,7 +34,7 @@ paths:
   /login:
     post:
       tags:
-      - Login
+        - Login
       summary: Logs in a user
       responses:
         204:
