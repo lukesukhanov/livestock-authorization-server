@@ -1,0 +1,90 @@
+openapi: 3.0.3
+info:
+  title: Authorization server
+  description: Authorization server for the project 'Livestock'.
+  contact:
+    name: Luke Sukhanov
+    email: lukesukhanov@gmail.com
+    url: https://github.com/lukesukhanov
+  version: '1.0'
+servers:
+  - url: http://localhost:8765
+  - url: http://localhost:9000
+paths:
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Saves a new user
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserForSave'
+      responses:
+        204:
+          description: Normal response
+        400:
+          description: Response in case of invalid request parameters
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestParametersProblem'
+  /login:
+    post:
+      tags:
+        - Login
+      summary: Logs in a user
+      responses:
+        204:
+          description: Normal response
+        401:
+          description: Response in case of failed authentication
+components:
+  schemas:
+    UserForSave:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: Вася
+        lastName:
+          type: string
+          example: Иванов
+        email:
+          type: string
+          example: vasya@gmail.com
+        password:
+          type: string
+          example: vasya123
+    InvalidRequestParametersProblem:
+      type: object
+      properties:
+        type:
+          type: string
+          example: /probs/invalidRequestParameters
+        title:
+          type: string
+          example: Invalid request parameters
+        status:
+          type: integer
+          format: int32
+          example: 400
+        invalid-params:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvalidRequestParameter'
+    InvalidRequestParameter:
+      type: object
+      properties:
+        name:
+          type: string
+          example: email
+        reason:
+          type: string
+          example: Email is required
+  securitySchemes:
+    basic_auth:
+      type: http
+      scheme: basic
