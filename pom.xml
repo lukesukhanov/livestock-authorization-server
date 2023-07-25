@@ -10,7 +10,7 @@
 	</parent>
 
 	<groupId>com.livestockshop</groupId>
-	<artifactId>livestock-shop-authorization-server</artifactId>
+	<artifactId>livestock-authorization-server</artifactId>
 	<version>0.0-SNAPSHOT</version>
 
 	<name>livestock-shop-authorization-server</name>
